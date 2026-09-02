@@ -1,198 +1,97 @@
-import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  TextInput,
-} from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  getAnotacoes,
-  atualizarStatusAnotacao,
-  excluirAnotacao,
-} from '../services/storage';
-import AnotacaoCard from '../components/AnotacaoCard';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { salvarAnotacao } from '../services/storage';
+import GravidadeSelector from '../components/GravidadeSelector';
 
-export default function HomeScreen({ navigation }) {
-  const [anotacoes, setAnotacoes] = useState([]);
-  const [filtroStatus, setFiltroStatus] = useState('Todos');
-  const [busca, setBusca] = useState('');
+export default function CadastroScreen({ navigation }) {
+  const [nome, setNome] = useState('');
+  const [numero, setNumero] = useState('');
+  const [sala, setSala] = useState('');
+  const [motivo, setMotivo] = useState('');
+  const [gravidade, setGravidade] = useState('Baixa');
 
-  const carregarDados = async () => {
-    const dados = await getAnotacoes();
-    setAnotacoes(dados);
-  };
+  const handleSalvar = async () => {
+    if (!nome || !sala || !motivo) {
+      Alert.alert('Atenção', 'Preencha os campos obrigatórios: Nome, Sala e Motivo.');
+      return;
+    }
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [])
-  );
+    const novaAnotacao = {
+      nome,
+      numero,
+      sala,
+      motivo,
+      gravidade,
+    };
 
-  const handleToggleStatus = async (item) => {
-    const novoStatus = item.status === 'Pendente' ? 'Concluído' : 'Pendente';
-    const sucesso = await atualizarStatusAnotacao(item.id, novoStatus);
+    const sucesso = await salvarAnotacao(novaAnotacao);
     if (sucesso) {
-      carregarDados();
+      Alert.alert('Sucesso', 'Anotação publicada com sucesso!');
+      navigation.goBack();
+    } else {
+      Alert.alert('Erro', 'Não foi possível salvar a anotação.');
     }
   };
 
-  const handleExcluir = (id) => {
-    Alert.alert(
-      'Confirmar Exclusão',
-      'Deseja realmente excluir esta anotação?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            const sucesso = await excluirAnotacao(id);
-            if (sucesso) carregarDados();
-          },
-        },
-      ]
-    );
-  };
-
-  const anotacoesFiltradas = anotacoes.filter((item) => {
-    const atendeStatus =
-      filtroStatus === 'Todos' || item.status === filtroStatus;
-    const atendeBusca =
-      item.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      item.sala.toLowerCase().includes(busca.toLowerCase()) ||
-      item.motivo.toLowerCase().includes(busca.toLowerCase());
-    return atendeStatus && atendeBusca;
-  });
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <Text style={styles.label}>Nome do Aluno/Responsável *</Text>
+      <TextInput 
+        style={styles.input} 
+        value={nome} 
+        onChangeText={setNome} 
+        placeholder="Ex: João Silva" 
+      />
+
+      <Text style={styles.label}>Número (Opcional)</Text>
+      <TextInput 
+        style={styles.input} 
+        value={numero} 
+        onChangeText={setNumero} 
+        placeholder="Ex: 12345" 
+        keyboardType="numeric" 
+      />
+
+      <Text style={styles.label}>Sala / Local *</Text>
+      <TextInput 
+        style={styles.input} 
+        value={sala} 
+        onChangeText={setSala} 
+        placeholder="Ex: B22" 
+      />
+
+      <Text style={styles.label}>Gravidade</Text>
+      <GravidadeSelector selecionado={gravidade} onSelect={setGravidade} />
+
+      <Text style={styles.label}>Motivo / Descrição *</Text>
       <TextInput
-        style={styles.searchBar}
-        placeholder="🔍 Buscar por nome, sala ou motivo..."
-        value={busca}
-        onChangeText={setBusca}
+        style={[styles.input, styles.textArea]}
+        value={motivo}
+        onChangeText={setMotivo}
+        placeholder="Descreva a ocorrência..."
+        multiline
+        numberOfLines={4}
       />
 
-      <View style={styles.filterContainer}>
-        {['Todos', 'Pendente', 'Concluído'].map((f) => (
-          <TouchableOpacity
-            key={f}
-            style={[
-              styles.filterTab,
-              filtroStatus === f && styles.filterTabActive,
-            ]}
-            onPress={() => setFiltroStatus(f)}
-          >
-            <Text
-              style={[
-                styles.filterTabText,
-                filtroStatus === f && styles.filterTabTextActive,
-              ]}
-            >
-              {f}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <FlatList
-        data={anotacoesFiltradas}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <AnotacaoCard
-            item={item}
-            onToggleStatus={handleToggleStatus}
-            onExcluir={handleExcluir}
-          />
-        )}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Nenhuma anotação registrada.</Text>
-          </View>
-        }
-      />
-
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('Cadastro')}
-      >
-        <Text style={styles.fabText}>+</Text>
+      <TouchableOpacity style={styles.btnSalvar} onPress={handleSalvar}>
+        <Text style={styles.btnSalvarText}>Publicar Anotação</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F7FA',
-    padding: 16,
+  container: { flex: 1, padding: 16, backgroundColor: '#F5F7FA' },
+  label: { fontSize: 14, fontWeight: 'bold', color: '#333', marginTop: 12, marginBottom: 4 },
+  input: { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#DDD', borderRadius: 8, padding: 12, fontSize: 14 },
+  textArea: { height: 100, textAlignVertical: 'top' },
+  btnSalvar: { 
+    backgroundColor: '#E52225', // Cor Vermelha
+    padding: 16, 
+    borderRadius: 8, 
+    alignItems: 'center', 
+    marginTop: 24, 
+    marginBottom: 40 
   },
-  searchBar: {
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    marginBottom: 12,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  filterTab: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 6,
-    backgroundColor: '#E9ECEF',
-    marginHorizontal: 3,
-  },
-  filterTabActive: {
-    backgroundColor: '#00519E',
-  },
-  filterTabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#495057',
-  },
-  filterTabTextActive: {
-    color: '#FFF',
-  },
-  listContainer: {
-    paddingBottom: 80,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    marginTop: 40,
-  },
-  emptyText: {
-    color: '#888',
-    fontSize: 15,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#00519E',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  fabText: {
-    color: '#FFF',
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: -2,
-  },
+  btnSalvarText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
 });
