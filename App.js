@@ -16,7 +16,7 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#E52225', // Mudou de '#00519E' para Vermelho SENAI
+            backgroundColor: '#E52225',
           },
           headerTintColor: '#FFF',
           headerTitleStyle: {
