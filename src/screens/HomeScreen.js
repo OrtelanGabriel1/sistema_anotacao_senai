@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   filterTabActive: {
-    backgroundColor: '#00519E',
+    backgroundColor: '#E52225',
   },
   filterTabText: {
     fontSize: 13,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
-    backgroundColor: '#00519E',
+    backgroundColor: '#E52225',
     width: 56,
     height: 56,
     borderRadius: 28,

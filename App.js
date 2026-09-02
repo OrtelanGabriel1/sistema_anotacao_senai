@@ -16,12 +16,12 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#00519E',
+            backgroundColor: '#E52225', // Mudou de '#00519E' para Vermelho SENAI
           },
           headerTintColor: '#FFF',
           headerTitleStyle: {
             fontWeight: 'bold',
-          },
+          }
         }}
       >
         <Stack.Screen
