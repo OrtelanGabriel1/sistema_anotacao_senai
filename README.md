@@ -27,3 +27,5 @@ src/screens/CadastroScreen.js: Tela de formulário dedicada para inserção de n
 src/components/AnotacaoCard.js: Componente para renderizar os dados do cartão e ações individuais. 
 src/components/GravidadeSelector.js: Componente de botões seletores do nível de gravidade. 
 src/services/storage.js: Camada de serviço responsável por ler, gravar e atualizar no AsyncStorage.  
+
+"Optamos por utilizar o AsyncStorage em vez do SQLite pois o volume de dados gerado pelo aplicativo de Ocorrências (textos curtos como nome, sala e motivo) é baixo. A complexidade dos dados é simples (não exigindo relacionamentos complexos entre tabelas) e o formato JSON atende perfeitamente à necessidade de salvar e recuperar o array de anotações de forma rápida e eficiente."
