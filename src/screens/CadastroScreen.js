@@ -40,7 +40,6 @@ export default function CadastroScreen({ navigation }) {
         style={styles.input} 
         value={nome} 
         onChangeText={setNome} 
-        placeholder="Ex: João Silva" 
       />
 
       <Text style={styles.label}>Número (Opcional)</Text>
@@ -48,7 +47,6 @@ export default function CadastroScreen({ navigation }) {
         style={styles.input} 
         value={numero} 
         onChangeText={setNumero} 
-        placeholder="Ex: 12345" 
         keyboardType="numeric" 
       />
 
@@ -57,7 +55,6 @@ export default function CadastroScreen({ navigation }) {
         style={styles.input} 
         value={sala} 
         onChangeText={setSala} 
-        placeholder="Ex: B22" 
       />
 
       <Text style={styles.label}>Gravidade</Text>
